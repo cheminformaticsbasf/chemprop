@@ -1,3 +1,4 @@
+from __future__ import annotations
 from typing import Optional
 
 from chemprop.v2.featurizers.molgraph import MolGraph

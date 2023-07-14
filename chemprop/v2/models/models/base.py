@@ -1,6 +1,7 @@
+from __future__ import annotations
 from abc import ABC, abstractmethod
 from itertools import chain
-from typing import Iterable, Optional, Union
+from typing import Iterable, Optional, Tuple, Union
 
 import pytorch_lightning as pl
 import torch
@@ -198,7 +199,7 @@ class MPNN(ABC, pl.LightningModule):
 
         return l
 
-    def validation_step(self, batch: TrainingBatch, batch_idx: int = 0) -> tuple[list[Tensor], int]:
+    def validation_step(self, batch: TrainingBatch, batch_idx: int = 0) -> Tuple[list[Tensor], int]:
         *_, targets, _, lt_targets, gt_targets = batch
 
         preds, _ = self.predict_step(batch, batch_idx)
@@ -231,7 +232,7 @@ class MPNN(ABC, pl.LightningModule):
 
     def predict_step(
         self, batch: TrainingBatch, batch_idx: int, dataloader_idx: int = 0
-    ) -> tuple[Tensor, ...]:
+    ) -> Tuple[Tensor, ...]:
         """Return the predictions of the input batch
 
         Parameters
@@ -241,7 +242,7 @@ class MPNN(ABC, pl.LightningModule):
 
         Returns
         -------
-        tuple[Tensor, ...]
+        Tuple[Tensor, ...]
             an n-tuple containing the predictions in the 0th index and uncertainty parameters for
             all remaining indices
         """

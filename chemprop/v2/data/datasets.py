@@ -1,17 +1,17 @@
 from __future__ import annotations
 
-from typing import Iterable, Optional
+from typing import Iterable, Optional, Tuple
 
 import numpy as np
 from rdkit import Chem
 from sklearn.preprocessing import StandardScaler
 from torch.utils.data import Dataset
 
-from chemprop.v2.featurizers import MolGraph, MoleculeFeaturizerBase, MoleculeFeaturizer
 from chemprop.v2.data.datapoints import MoleculeDatapoint, ReactionDatapoint
+from chemprop.v2.featurizers import MoleculeFeaturizer, MoleculeFeaturizerBase, MolGraph
 from chemprop.v2.featurizers.reaction import ReactionFeaturizer, ReactionFeaturizerBase
 
-Datum = tuple[MolGraph, np.ndarray, np.ndarray, np.ndarray, float, np.ndarray, np.ndarray]
+Datum = Tuple[MolGraph, np.ndarray, np.ndarray, np.ndarray, float, np.ndarray, np.ndarray]
 
 
 class MolGraphDatasetBase(Dataset):

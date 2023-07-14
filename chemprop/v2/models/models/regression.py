@@ -1,3 +1,4 @@
+from typing import Tuple
 import torch
 from torch import Tensor
 from torch.nn import functional as F
@@ -26,7 +27,7 @@ class MveRegressionMPNN(RegressionMPNN):
 
         return torch.cat((Y_mean, Y_var), 1)
 
-    def predict_step(self, *args, **kwargs) -> tuple[Tensor, ...]:
+    def predict_step(self, *args, **kwargs) -> Tuple[Tensor, ...]:
         Y = super().predict_step(*args, **kwargs)[0]
         Y_mean, Y_var = Y.split(Y.shape[1] // 2, dim=1)
 
@@ -50,7 +51,7 @@ class EvidentialMPNN(RegressionMPNN):
 
         return torch.cat((means, lambdas, alphas, betas), 1)
 
-    def predict_step(self, *args, **kwargs) -> tuple[Tensor, Tensor, Tensor, Tensor]:
+    def predict_step(self, *args, **kwargs) -> Tuple[Tensor, Tensor, Tensor, Tensor]:
         Y = super().predict_step(*args, **kwargs)[0]
         means, lambdas, alphas, betas = Y.split(Y.shape[1] // 4, 1)
 

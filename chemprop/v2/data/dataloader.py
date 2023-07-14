@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Iterable, Optional
+from typing import Iterable, Optional, Tuple
 
 import numpy as np
 import torch
@@ -11,7 +11,7 @@ from chemprop.v2.data.datasets import Datum, MolGraphDatasetBase
 from chemprop.v2.data.samplers import ClassBalanceSampler, SeededSampler
 from chemprop.v2.featurizers.molgraph import BatchMolGraph
 
-TrainingBatch = tuple[
+TrainingBatch = Tuple[
     BatchMolGraph, Tensor, Tensor, Tensor, Optional[Tensor], Optional[Tensor]
 ]
 
@@ -63,7 +63,7 @@ class MolGraphDataLoader(DataLoader):
         shuffle: bool = True,
         multiprocessing_context=None,
         batch_sampler=None,
-        drop_last=None,
+        drop_last=False,
         sampler=None
     ):
         self.dset = dataset

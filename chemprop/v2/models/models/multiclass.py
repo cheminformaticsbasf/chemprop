@@ -1,3 +1,4 @@
+from typing import Tuple
 from torch import Tensor, nn
 
 from chemprop.v2.data.dataloader import TrainingBatch
@@ -34,7 +35,7 @@ class MulticlassMPNN(MPNN):
 
     def predict_step(
         self, batch: TrainingBatch, batch_idx: int, dataloader_idx: int = 0
-    ) -> tuple[Tensor, ...]:
+    ) -> Tuple[Tensor, ...]:
         Y = super().predict_step(batch, batch_idx, dataloader_idx)[0]
 
         return (Y.softmax(2),)
@@ -55,7 +56,7 @@ class DirichletMulticlassMPNN(MulticlassMPNN):
 
     def predict_step(
         self, batch: TrainingBatch, batch_idx: int, dataloader_idx: int = 0
-    ) -> tuple[Tensor, ...]:
+    ) -> Tuple[Tensor, ...]:
         alphas = MPNN.predict_step(self, batch, batch_idx, dataloader_idx)[0]
         preds = alphas / alphas.sum(2, keepdim=True)
 

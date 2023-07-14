@@ -82,7 +82,7 @@ class CompositeMessagePassingBlock(MessagePassingBlock):
 
         Example
         -------
-        >>> inputs: tuple[BatchMolGraph, Optional[Tensor]]
+        >>> inputs: Tuple[BatchMolGraph, Optional[Tensor]]
         >>> block = MolecularMessagePassingBlock()
         >>> multi_block = CompositeMessagePassingBlock([block], n_mols=1)
         >>> H_single = block(*inputs)

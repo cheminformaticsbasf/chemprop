@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from abc import abstractmethod
-from typing import Optional
+from typing import Optional, Tuple
 
 import torch
 from torch import Tensor, nn
@@ -12,7 +12,7 @@ from chemprop.v2.models.modules.readout import build_readout
 from chemprop.v2.models.modules.message_passing.base import MessagePassingBlock
 from chemprop.v2.models.utils import get_activation_function
 
-MolecularInput = tuple[BatchMolGraph, Optional[Tensor]]
+MolecularInput = Tuple[BatchMolGraph, Optional[Tensor]]
 
 
 class MolecularMessagePassingBlock(MessagePassingBlock):

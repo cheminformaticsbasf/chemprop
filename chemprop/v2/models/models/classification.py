@@ -1,3 +1,4 @@
+from typing import Tuple
 from torch import Tensor, nn
 
 from chemprop.v2.models.models.base import MPNN
@@ -11,7 +12,7 @@ class ClassificationMPNN(MPNN):
 class BinaryClassificationMPNN(ClassificationMPNN):
     _DEFAULT_CRITERION = "bce"
 
-    def predict_step(self, *args, **kwargs) -> tuple[Tensor]:
+    def predict_step(self, *args, **kwargs) -> Tuple[Tensor]:
         Y = super().predict_step(*args, **kwargs)[0]
 
         return (Y.sigmoid(),)
@@ -34,7 +35,7 @@ class DirichletClassificationMPNN(ClassificationMPNN):
 
         return self.softplus(Y) + 1
 
-    def predict_step(self, *args, **kwargs) -> tuple[Tensor, Tensor]:
+    def predict_step(self, *args, **kwargs) -> Tuple[Tensor, Tensor]:
         alphas = super().predict_step(*args, **kwargs)[0]
 
         alphas = alphas.reshape(-1, self.n_tasks, 2)
