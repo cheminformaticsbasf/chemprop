@@ -11,7 +11,9 @@ from chemprop.v2.data.datasets import Datum, MolGraphDatasetBase
 from chemprop.v2.data.samplers import ClassBalanceSampler, SeededSampler
 from chemprop.v2.featurizers.molgraph import BatchMolGraph
 
-TrainingBatch = tuple[BatchMolGraph, Tensor, Tensor, Tensor, Optional[Tensor], Optional[Tensor]]
+TrainingBatch = tuple[
+    BatchMolGraph, Tensor, Tensor, Tensor, Optional[Tensor], Optional[Tensor]
+]
 
 
 def collate_batch(batch: Iterable[Datum]) -> TrainingBatch:
@@ -19,7 +21,9 @@ def collate_batch(batch: Iterable[Datum]) -> TrainingBatch:
 
     return (
         BatchMolGraph(mgs),
-        None if atom_descriptors[0] is None else torch.from_numpy(np.array(atom_descriptors, "f4")),
+        None
+        if atom_descriptors[0] is None
+        else torch.from_numpy(np.array(atom_descriptors, "f4")),
         None if features[0] is None else torch.from_numpy(np.array(features, "f4")),
         torch.from_numpy(np.array(ys, "f4")),
         torch.from_numpy(np.array(weights, "f4")).unsqueeze(1),
@@ -57,25 +61,34 @@ class MolGraphDataLoader(DataLoader):
         class_balance: bool = False,
         seed: Optional[int] = None,
         shuffle: bool = True,
+        multiprocessing_context=None,
+        drop_last=False,
+        sampler=None,
+        batch_sampler=None,
     ):
         self.dset = dataset
         self.class_balance = class_balance
         self.shuffle = shuffle
 
-        if self.class_balance:
+        if sampler:
+            self.sampler = sampler
+        elif self.class_balance:
             self.sampler = ClassBalanceSampler(self.dset.targets, seed, self.shuffle)
-        elif self.shuffle and seed is not None:
+        elif not self.shuffle and seed is not None:
             self.sampler = SeededSampler(len(self.dset), seed)
         else:
             self.sampler = None
 
         super().__init__(
-            self.dset,
-            batch_size,
-            self.sampler is None and self.shuffle,
-            self.sampler,
+            dataset=self.dset,
+            batch_size=batch_size,
+            shuffle = self.sampler is None and self.shuffle,
+            sampler = self.sampler,
+            batch_sampler = batch_sampler,
             num_workers=num_workers,
             collate_fn=collate_batch,
+            multiprocessing_context=multiprocessing_context,
+            drop_last=drop_last,
         )
 
     @property
