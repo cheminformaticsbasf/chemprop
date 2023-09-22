@@ -1,35 +1,37 @@
-from typing import Protocol, Sequence
+from typing import Sequence
 
 import numpy as np
 from rdkit.Chem.rdchem import Bond, BondType
 
-from chemprop.v2.featurizers.utils import MultiHotFeaturizerMixin
+from chemprop.v2.featurizers.protos import BondFeaturizerProto
 
 
-class BondFeaturizerProto(Protocol):
-    """A `BondFeaturizerProto` calculates feature vectors of RDKit bonds"""
+class BondFeaturizer(BondFeaturizerProto):
+    """A :class:`BondFeaturizer` feauturizes bonds based on the following attributes:
 
-    def __len__(self) -> int:
-        """the length of a bond feature vector"""
+    * ``null``-ity (i.e., is the bond ``None``?)
+    * bond type
+    * conjugated?
+    * in ring?
+    * stereochemistry
 
-    def __call__(self, b: Bond) -> np.ndarray:
-        """featurize the bond `b`"""
+    The feature vectors produced by this featurizer have the following (general) signature:
 
+    +---------------------+-----------------+--------------+
+    | slice [start, stop) | subfeature      | unknown pad? |
+    +=====================+=================+==============+
+    | 0-1                 | null?           | N            |
+    +---------------------+-----------------+--------------+
+    | 1-5                 | bond type       | N            |
+    +---------------------+-----------------+--------------+
+    | 5-6                 | conjugated?     | N            |
+    +---------------------+-----------------+--------------+
+    | 6-8                 | in ring?        | N            |
+    +---------------------+-----------------+--------------+
+    | 7-14                | stereochemistry | Y            |
+    +---------------------+-----------------+--------------+
 
-class BondFeaturizer(BondFeaturizerProto, MultiHotFeaturizerMixin):
-    """A `BondFeaturizer` generates multihot featurizations of RDKit bonds
-
-    The featurizations produced by this featurizer have the following (general) signature:
-
-    | slice | subfeature      | unknown pad? |
-    | ----- | --------------- | ------------ |
-    | 0-1   | null?           | N            |
-    | 1-5   | bond type       | N            |
-    | 5-6   | conjugated?     | N            |
-    | 6-8   | in ring?        | N            |
-    | 7-14  | stereochemistry | Y            |
-
-    NOTE: the above signature only applies for the default arguments, as the bond type and
+    **NOTE**: the above signature only applies for the default arguments, as the bond type and
     sterochemistry slices can increase in size depending on the input arguments.
 
     Parameters
@@ -58,15 +60,6 @@ class BondFeaturizer(BondFeaturizerProto, MultiHotFeaturizerMixin):
     def __len__(self):
         return 1 + len(self.bond_types) + 2 + (len(self.stereo) + 1)
 
-    @property
-    def subfeatures(self) -> list[tuple[str, slice]]:
-        names = ("null", "bond_type", "conjugated", "ring", "stereo")
-        subfeature_sizes = [1, len(self.bond_types), 1, 1, (len(self.stereo) + 1)]
-        offsets = np.cumsum([0] + subfeature_sizes[:-1])
-        slices = [slice(i, j) for i, j in zip(offsets, offsets[1:])]
-
-        return list(zip(names, slices))
-
     def __call__(self, b: Bond) -> np.ndarray:
         x = np.zeros(len(self), int)
 
@@ -89,3 +82,10 @@ class BondFeaturizer(BondFeaturizerProto, MultiHotFeaturizerMixin):
         x[i + stereo_bit] = 1
 
         return x
+
+    @classmethod
+    def one_hot_index(cls, x, xs: Sequence) -> tuple[int, int]:
+        """the index of ``x`` in ``xs``, if it exists. Otherwise, return ``len(xs) + 1``."""
+        n = len(xs)
+
+        return xs.index(x) if x in xs else n, n + 1
