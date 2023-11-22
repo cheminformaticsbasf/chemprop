@@ -3,12 +3,17 @@ from typing import Iterable
 import torch
 from torch import Tensor, nn
 
-from chemprop.v2.data.dataloader import MulticomponentTrainingBatch
-from chemprop.v2.featurizers.molgraph import BatchMolGraph
+from chemprop.v2.data.collate import MulticomponentTrainingBatch, BatchMolGraph
+from chemprop.v2.nn import (
+    MulticomponentMessagePassing,
+    Aggregation,
+    # OutputTransform,
+    LossFunction,
+    Metric,
+)
 from chemprop.v2.models.model import MPNN
-from chemprop.v2.models.modules import MulticomponentMessagePassing, Aggregation, OutputTransform
-from chemprop.v2.models.loss import LossFunction
-from chemprop.v2.models.metrics import Metric
+
+OutputTransform = None
 
 
 class MulticomponentMPNN(MPNN):
@@ -22,7 +27,6 @@ class MulticomponentMPNN(MPNN):
         metrics: Iterable[Metric],
         task_weights: Tensor | None = None,
         warmup_epochs: int = 2,
-        num_lrs: int = 1,
         init_lr: float = 1e-4,
         max_lr: float = 1e-3,
         final_lr: float = 1e-4,
@@ -36,7 +40,6 @@ class MulticomponentMPNN(MPNN):
             metrics,
             task_weights,
             warmup_epochs,
-            num_lrs,
             init_lr,
             max_lr,
             final_lr,
